@@ -1,0 +1,7 @@
+fi.farmid:                              # location-scheme
+    example farm:                       # location-id of farm
+        dbType: exampleDB               # type of database, must match an SQL query type in sqlQueries.yaml
+        dbUrl: localhost                # URL of the database server
+        dbName: MilkingRobotDBMockup    # database name
+        dbUser: postgres                # username for reading the data
+        dbPassword: postgres_password   # user's password

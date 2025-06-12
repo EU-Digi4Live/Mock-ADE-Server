@@ -1,0 +1,26 @@
+# Docker services are configured with docker-compose.yaml
+# docker-compose.yaml refers to Dockerfile, which builds the image of the service
+# The image can be run as a container, locally or in the cloud
+
+# This docker-compose.yaml file is used only for local development setup
+
+services:
+  postgres:
+    build:
+      context: ./db_example
+      dockerfile: db.Dockerfile
+    restart: no
+    network_mode: "host"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: MilkingRobotDBMockup
+      POSTGRES_PASSWORD: postgres_password
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    network_mode: "host"
+    ports:
+      - "9000:9000"

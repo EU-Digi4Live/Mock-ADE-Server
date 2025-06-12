@@ -1,0 +1,82 @@
+exampleDB:
+    dbClient: postgres              # client to use when connecting the database
+    "get-milking-visits": "SELECT milkingsession.id as id
+                        ,milkingsession.systementrytimestamp as eventdatetime
+                        ,animal.officialregno as \"animal.id\"
+                        ,begintime as milkingstartingdatetime
+                        ,milkflowdurationsec as \"milkingduration.value\"
+                        ,EXTRACT(EPOCH FROM (begintime::timestamp - endtime::timestamp)) as \"milkingvisitduration.value\"
+                        ,'Automated' as milkingtype
+                        ,totalyieldkg as \"milkingmilkweight.value\"
+                        ,CASE
+                            WHEN incomplete = 0 THEN 'true'
+                            WHEN incomplete = 1 THEN 'false'
+                        END as milkingcomplete
+                        ,milkingdeviceid as milkingdeviceid
+                        ,'??' as \"animalMilkingSample.bottleIdentifierType\"
+                        ,CASE
+                            WHEN milkingsamplerackno <> 0 THEN milkingsamplerackno
+                            ELSE NULL
+                        END as \"animalmilkingsample.racknumber\"
+                        ,CASE
+                            WHEN milkingsampletubepos <> 0 THEN milkingsampletubepos
+                            ELSE NULL
+                        END as \"animalmilkingsample.bottleposition\"
+                        ,CASE
+                            WHEN milkingsampletubeid <> 0 THEN milkingsampletubeid
+                            ELSE NULL
+                        END as \"animalmilkingsample.bottleidentifier\"
+                        ,CASE
+                            WHEN milkingsampletubeid IS NULL THEN NULL
+                            WHEN totalyieldkg > 0.8 * expectedyieldkg THEN 0
+                            WHEN totalyieldkg < 0.2 * expectedyieldkg THEN 1
+                            ELSE 2
+                        END as \"animalmilkingsample.validsamplefillingindicator\"
+                        ,scc as \"milkcharacteristics.characteristic.SCC.value\"
+                        ,avgconductivity as \"milkcharacteristics.characteristic.AVGCOND.value\"
+                        ,CASE
+                            WHEN maxblood > 0 THEN 'true'
+                            WHEN maxblood = 0 THEN 'false'
+                        END as \"milkcharacteristics.characteristic.BLOOD.value\"
+                        ,CASE
+                            WHEN incomplete = 1 THEN 'true'
+                            WHEN incomplete = 0 THEN 'false'
+                        END as \"milkingremarks.milkingincomplete\"
+                        ,quarterlfyield as \"quartermilkings.LF.quartermilkingweight.value\"
+                        ,quarterrfyield as \"quartermilkings.RF.quartermilkingweight.value\"
+                        ,quarterlryield as \"quartermilkings.LR.quartermilkingweight.value\"
+                        ,quarterrryield as \"quartermilkings.RR.quartermilkingweight.value\"
+                        ,conductivitylf as \"quartermilkings.LF.icarquartercharacteristics.AVGCOND.value\"
+                        ,conductivityrf as \"quartermilkings.RF.icarquartercharacteristics.AVGCOND.value\"
+                        ,conductivitylr as \"quartermilkings.LR.icarquartercharacteristics.AVGCOND.value\"
+                        ,conductivityrr as \"quartermilkings.RR.icarquartercharacteristics.AVGCOND.value\"
+                        ,CASE
+                            WHEN bloodlf > 0 THEN 'true'
+                            WHEN bloodlf = 0 THEN 'false'
+                        END as \"quartermilkings.LF.icarquartercharacteristics.BLOOD.value\"
+                        ,CASE
+                            WHEN bloodrf > 0 THEN 'true'
+                            WHEN bloodrf = 0 THEN 'false'
+                        END as \"quartermilkings.RF.icarquartercharacteristics.BLOOD.value\"
+                        ,CASE
+                            WHEN bloodlr > 0 THEN 'true'
+                            WHEN bloodlr = 0 THEN 'false'
+                        END as \"quartermilkings.LR.icarquartercharacteristics.BLOOD.value\"
+                        ,CASE
+                            WHEN bloodrr > 0 THEN 'true'
+                            WHEN bloodrr = 0 THEN 'false'
+                        END as \"quartermilkings.RR.icarquartercharacteristics.BLOOD.value\"
+
+                        ,COUNT(*) OVER()::INT as totalItems
+
+                        FROM public.milkingsession
+                        JOIN public.animal ON animal.id = milkingsession.animalid
+                        JOIN public.quartermilking ON quartermilking.id = milkingsession.id
+
+                        WHERE milkingsession.systementrytimestamp BETWEEN ':metaModifiedFromDateTime' AND ':metaModifiedToDateTime'
+                        WHERE milkingsession.systementrytimestamp > ':metaModifiedFromDateTime'
+                        WHERE milkingsession.systementrytimestamp < ':metaModifiedToDateTime'
+
+                        ORDER BY milkingsession.systementrytimestamp
+                        
+                        LIMIT ':pageSize' OFFSET ':offset'"
