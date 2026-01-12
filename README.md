@@ -36,7 +36,7 @@ Or query a single endpoint, e.g. ```http://localhost:9000/locations/fi.farmid/ex
 
 Operation handlers in ```src/paths``` take care of serving the server's endpoints. There's one operation handler for each endpoint. They manage the task of querying the requested farm's database for the requested data, receiving the database response and converting it to ICAR ADE JSON Standard format.
 
-For example, ```stc/paths/get-milking-visits.ts``` converts an array of records like this:
+For example, ```src/paths/get-milking-visits.ts``` converts an array of records like this:
 ```ts
 // A milking visit record received from database
 // in format specified in milkDBrecord.d.ts
@@ -95,7 +95,9 @@ into an ICAR ADE v1.4 compliant json response:
       meta: { source: 'localhost' },
       location: { id: 'example farm', scheme: 'fi.farmid' },
       id: 54198,
+      eventDateTime: '2022-12-03T02:39:54Z',
       animal: { id: 'FI000013587939', scheme: undefined },
+      milkingStartingDateTime: '2022-12-03T02:31:34Z',
       milkingDuration: { value: 197 },
       milkingType: 'Automated',
       milkingMilkWeight: { unitCode: 'KGM', value: 10.470000267028809 },

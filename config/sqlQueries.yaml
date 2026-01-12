@@ -1,9 +1,9 @@
 exampleDB:
     dbClient: postgres              # client to use when connecting the database
     "get-milking-visits": "SELECT milkingsession.id as id
-                        ,milkingsession.systementrytimestamp as eventdatetime
+                        ,TO_CHAR(milkingsession.systementrytimestamp AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') as eventdatetime
                         ,animal.officialregno as \"animal.id\"
-                        ,begintime as milkingstartingdatetime
+                        ,TO_CHAR(begintime AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') as milkingstartingdatetime
                         ,milkflowdurationsec as \"milkingduration.value\"
                         ,EXTRACT(EPOCH FROM (begintime::timestamp - endtime::timestamp)) as \"milkingvisitduration.value\"
                         ,'Automated' as milkingtype
