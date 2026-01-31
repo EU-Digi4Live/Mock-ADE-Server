@@ -1,6 +1,6 @@
 # OpenAPI Backend for providing ICAR ADE compliant cattle data
 
-This is an [OpenAPI Backend Express server](https://www.npmjs.com/package/openapi-backend) that serves cattle data in [ICAR Animal Data Exchange JSON Standard format](https://github.com/adewg/ICAR) v1.4. This repository contributes to the development of the Digital Product Passport of cattle in the Digi4Live project.
+This is an [OpenAPI Backend Express server](https://www.npmjs.com/package/openapi-backend) that serves cattle data in [ICAR Animal Data Exchange JSON Standard format](https://github.com/adewg/ICAR) v1.5.1. This repository contributes to the development of the Digital Product Passport of cattle in the Digi4Live project.
 
 Currently, only one endpoint is implemented, ```/locations/{location-scheme}/{location-id}/milking-visits``` from the ICAR ADE milk URL scheme. Additionally, a demo database prepopulated with relevant, real cattle data is provided.
 
