@@ -1,4 +1,4 @@
-﻿id;officialregno;animalname;sex;breed;birthdate;exitdate;modified
+﻿id;officialregno;animalname;gender;breed;birthdate;exitdate;modified
 51;FI000013587939;Samurai;Female;HOL;2020-02-13 00:00:00.000;NULL;2024-04-15 09:00:41.373
 56;FI000013587945;Salakka;Female;HOL;2020-05-29 00:00:00.000;NULL;2024-04-09 07:35:53.877
 58;FI000013587947;Saappi;Female;RDC;2020-06-28 00:00:00.000;NULL;2024-04-09 07:35:54.227
