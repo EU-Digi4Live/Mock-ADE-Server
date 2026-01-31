@@ -11,10 +11,11 @@ services:
       dockerfile: db.Dockerfile
     restart: no
     network_mode: "host"
-    ports:
-      - "5432:5432"
+    # ports:
+    #   - "5432:5432"
     environment:
       POSTGRES_DB: MilkingRobotDBMockup
+      POSTGRES_USER: postgres_user
       POSTGRES_PASSWORD: postgres_password
 
   backend:
@@ -22,5 +23,7 @@ services:
       context: .
       dockerfile: Dockerfile
     network_mode: "host"
-    ports:
-      - "9000:9000"
+    # ports:
+    #   - "9000:9000"
+    depends_on:
+      - postgres
