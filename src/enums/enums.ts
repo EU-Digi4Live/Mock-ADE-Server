@@ -50,3 +50,24 @@ export const MilkCharacteristicUnit: Record<keyof typeof MilkCharacteristic, str
     WEIGHT: "Kg",
     PAG: "mmol/l"     
 }
+
+export enum Species {
+    "Buffalo" = "Buffalo",
+    "Cattle" = "Cattle",
+    "Deer" = "Deer",
+    "Elk" = "Elk",
+    "Goat" = "Goat",
+    "Horse" = "Horse",
+    "Pig" = "Pig",
+    "Sheep" = "Sheep"
+}
+
+export enum Gender {
+    "Female" = "Female",
+    "FemaleNeuter" = "FemaleNeuter",
+    "Freemartin" = "Freemartin",
+    "Male" = "Male",
+    "MaleCryptorchid" = "MaleCryptorchid",
+    "MaleNeuter" = "MaleNeuter",
+    "Unknown" = "Unknown"
+}

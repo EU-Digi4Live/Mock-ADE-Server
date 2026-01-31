@@ -9,11 +9,8 @@ import { icarBatchResultSeverityType } from "../enums/icarEnums.js";
 
 import type { Context } from "openapi-backend";
 import type { Request, Response } from "express";
-import type { Operations, OperationHandler, OperationResponse, Components, icarMilkingVisitEventArray, icarMilkingVisitEventResource } from '../types/milkURLScheme.js';
-import type { DBQueryResult, DBQueryKey } from "../types/milkDBrecord.js";
-
-const DB_OPERATION_ID: DBQueryKey = "get-milking-visits";
-const URL_OPERATION_ID: keyof Operations = "get_milking_visits";
+import type { OperationHandler, OperationResponse, Components, icarMilkingVisitEventArray, icarMilkingVisitEventResource } from '../types/combinedURLScheme.js';
+import type { DBQueryResult } from "../types/dbRecords.js";
 
 /**
  * Returns a function that handles milking visits requests.
@@ -22,7 +19,7 @@ const URL_OPERATION_ID: keyof Operations = "get_milking_visits";
  * @param {Response} res
  * @returns {OperationHandler<typeof URL_OPERATION_ID>}
  */
-export const getMilkingVisitsHandler: OperationHandler<typeof URL_OPERATION_ID> = async (
+export const getMilkingVisitsHandler: OperationHandler<"get_milking_visits"> = async (
   c: Context,
   req: Request,
   res: Response
@@ -59,7 +56,7 @@ export const getMilkingVisitsHandler: OperationHandler<typeof URL_OPERATION_ID> 
     }
   }
 
-  const response: OperationResponse<typeof URL_OPERATION_ID> = {
+  const response: OperationResponse<"get_milking_visits"> = {
     view: await populateView(req.path, req.query, totalItems),
     member: milkingVisits,
   };
@@ -75,7 +72,7 @@ async function getMilkingVisits(
   currentPage?: string,
   pageSize?: string
 ): Promise<[icarMilkingVisitEventArray, number]> {
-  const records = await queryDatabase(locationScheme, locationId, DB_OPERATION_ID, metaModifiedFrom, metaModifiedTo, currentPage, pageSize);
+  const records = await queryDatabase(locationScheme, locationId, "get-milking-visits", metaModifiedFrom, metaModifiedTo, currentPage, pageSize);
 
   const nReceived = records.length;
   let milkingVisits: icarMilkingVisitEventArray = [];
@@ -94,7 +91,7 @@ async function getMilkingVisits(
 
 // Returns a single milking visit event in ICAR ADE format.
 async function convertMilkingVisitEventToADEFormat(
-  record: DBQueryResult<typeof DB_OPERATION_ID>, locationScheme: string, locationId: string
+  record: DBQueryResult<"get-milking-visits">, locationScheme: string, locationId: string
 ) {
   const dbDetails = await getDBdetails(locationScheme, locationId);
   const milkingVisit: icarMilkingVisitEventResource = {
@@ -139,7 +136,7 @@ async function convertMilkingVisitEventToADEFormat(
 }
 
 // Returns milking duration in ICAR ADE format.
-async function convertMilkingDuration(record: DBQueryResult<typeof DB_OPERATION_ID>, quarter?: Quarter, visit?: boolean) {
+async function convertMilkingDuration(record: DBQueryResult<"get-milking-visits">, quarter?: Quarter, visit?: boolean) {
   let key: "milkingduration" | "milkingvisitduration" | `quartermilkings.${Quarter}.quartermilkingduration`;
   key = "milkingduration";
   if (visit) key = "milkingvisitduration";
@@ -155,12 +152,12 @@ async function convertMilkingDuration(record: DBQueryResult<typeof DB_OPERATION_
 }
 
 // Returns milking visit duration in ICAR ADE format.
-async function convertMilkingVisitDuration(record: DBQueryResult<typeof DB_OPERATION_ID>) {
+async function convertMilkingVisitDuration(record: DBQueryResult<"get-milking-visits">) {
   return convertMilkingDuration(record, null, true);
 }
 
 // Returns milk characteristics in ICAR ADE format.
-async function convertMilkCharacteristics(record: DBQueryResult<typeof DB_OPERATION_ID>, quarter?: Quarter) {
+async function convertMilkCharacteristics(record: DBQueryResult<"get-milking-visits">, quarter?: Quarter) {
   let key: "milkcharacteristics.characteristic" | `quartermilkings.${Quarter}.icarquartercharacteristics`;
   key = "milkcharacteristics.characteristic";
   if (quarter) {
@@ -183,7 +180,7 @@ async function convertMilkCharacteristics(record: DBQueryResult<typeof DB_OPERAT
 }
 
 // Returns an array of quarter milkings in ICAR ADE format.
-async function convertQuarterMilkings(record: DBQueryResult<typeof DB_OPERATION_ID>) {
+async function convertQuarterMilkings(record: DBQueryResult<"get-milking-visits">) {
   let quarterMilkings: icarMilkingVisitEventResource["quarterMilkings"] = []
   for (const quarter of Object.values(Quarter)) {
     if (!record.hasOwnProperty(`quartermilkings.${quarter}.quartermilkingweight.value`)) {
@@ -196,7 +193,7 @@ async function convertQuarterMilkings(record: DBQueryResult<typeof DB_OPERATION_
 }
 
 // Returns a single quarter milking in ICAR ADE format.
-async function convertSingleQuarterMilking(record: DBQueryResult<typeof DB_OPERATION_ID>, quarter: Quarter) {
+async function convertSingleQuarterMilking(record: DBQueryResult<"get-milking-visits">, quarter: Quarter) {
   const quarterMilking: icarMilkingVisitEventResource["quarterMilkings"][0] = {
     icarQuarterId: quarter,
     xposition: record[`quartermilkings.${quarter}.xposition`],
@@ -215,7 +212,7 @@ async function convertSingleQuarterMilking(record: DBQueryResult<typeof DB_OPERA
 }
 
 // Returns an array of milking samples in ICAR ADE format.
-async function convertMilkingSamples(record: DBQueryResult<typeof DB_OPERATION_ID>, quarter?: Quarter) {
+async function convertMilkingSamples(record: DBQueryResult<"get-milking-visits">, quarter?: Quarter) {
   let key: "animalmilkingsample" | `quartermilkings.${Quarter}.icarquartermilkingsample`;
   key = "animalmilkingsample";
   if (quarter) key = `quartermilkings.${quarter}.icarquartermilkingsample`;
@@ -236,7 +233,7 @@ async function convertMilkingSamples(record: DBQueryResult<typeof DB_OPERATION_I
 }
 
 // Returns an array of milking remarks in ICAR ADE format.
-async function convertMilkingRemarks(record: DBQueryResult<typeof DB_OPERATION_ID>) {
+async function convertMilkingRemarks(record: DBQueryResult<"get-milking-visits">) {
   let remarks: icarMilkingVisitEventResource["milkingRemarks"] | void = Object.keys(MilkingRemark).map(key => {
     const remarkKey = key as keyof typeof MilkingRemark;
     if (record[`milkingremarks.${remarkKey}`] == "true") {

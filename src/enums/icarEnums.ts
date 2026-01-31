@@ -1,4 +1,4 @@
-import type { Paths } from "../types/milkURLScheme.js"
+import type { Paths } from "../types/combinedURLScheme.js"
 
 type Severity = Paths.GetMilkingVisits.Responses.Default["errors"][0]["severity"]
 

@@ -1,7 +1,7 @@
 import { removeEmptyEntries } from "./jsonPrettifier.js";
 
-import type { DBQueryResult, DBQueryKey } from "../types/milkDBrecord.js";
-import type { icarMilkingVisitEventResource } from '../types/milkURLScheme.js';
+import type { DBQueryResult, DBQueryKey } from "../types/dbRecords.js";
+import type { icarMilkingVisitEventResource } from '../types/combinedURLScheme.js';
 
 /**
  * Returns metadata of the record in ICAR ADE format.
@@ -29,10 +29,10 @@ export async function convertMeta(
 
 /**
  * Returns trait label of the record in ICAR ADE format.
- * @param {DBQueryResult<DBQueryKey>} record
+ * @param {DBQueryResult<"get-milking-visits">} record
  * @returns {icarMilkingVisitEventResource["traitLabel"]}
  */
-export async function convertTraitLabel(record: DBQueryResult<DBQueryKey>) {
+export async function convertTraitLabel(record: DBQueryResult<"get-milking-visits">) {
   const traitLabel: icarMilkingVisitEventResource["traitLabel"] = {
       id: record["traitlabel.id"],
       scheme: record["traitlabel.scheme"]

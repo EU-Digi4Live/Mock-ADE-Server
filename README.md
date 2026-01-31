@@ -2,7 +2,7 @@
 
 This is an [OpenAPI Backend Express server](https://www.npmjs.com/package/openapi-backend) that serves cattle data in [ICAR Animal Data Exchange JSON Standard format](https://github.com/adewg/ICAR) v1.5.1. This repository contributes to the development of the Digital Product Passport of cattle in the Digi4Live project.
 
-Currently, only one endpoint is implemented, ```/locations/{location-scheme}/{location-id}/milking-visits``` from the ICAR ADE milk URL scheme. Additionally, a demo database prepopulated with relevant, real cattle data is provided.
+Currently, only two endpoints are implemented, ```/locations/{location-scheme}/{location-id}/milking-visits``` and ```/locations/{location-scheme}/{location-id}/animals``` from the ICAR ADE bundled URL scheme. Additionally, a demo database prepopulated with relevant, real cattle data is provided.
 
 ## Getting started
 
@@ -163,10 +163,10 @@ Make sure that each SQL query result contains specified keys and values. For exa
 When introducing a new database client to ```./config/sqlQueries.yaml```, update also the operation handler correspondingly to convert the new query result into the appropriate type. See e.g. ```src/paths/get-milking-visits.ts: getMilkingVisits()```.
 
 ## Change to another URL scheme
-If you want to change to another URL scheme and develop endpoints for it, first generate TypeScript types based on the selected scheme. For example, ```./src/types/milkURLScheme.d.ts``` file was created by running:
+If you want to change to another URL scheme and develop endpoints for it, first generate TypeScript types based on the selected scheme. For example, ```./src/types/combinedURLScheme.d.ts``` file was created by executing:
 
 ```bash
-openapi typegen ./ICAR-ADE-1/url-schemes/milkURLScheme.json --validate --dereference --backend > ./types/milkURLScheme.d.ts
+openapi typegen ./ICAR-ADE-1.5.1/bundled-schemes/combinedURLScheme.json --validate --dereference --backend > ./src/types/combinedURLScheme.d.ts
 
 # If command 'openapi' not found, run
 npm install -g openapicmd

@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import { removeEmptyEntries } from "./jsonPrettifier.js";
 
 import type { Request } from "express";
-import type { icarDailyMilkingAveragesCollection } from "../types/milkURLScheme.js"
+import type { icarDailyMilkingAveragesCollection } from "../types/combinedURLScheme.js"
 
 dotenv.config();
 const PAGE_SIZE = process.env.PAGE_SIZE;

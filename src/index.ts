@@ -12,6 +12,7 @@ import { icarBatchResultSeverityType } from "./enums/icarEnums.js";
 
 // Import request handlers
 import { getMilkingVisitsHandler } from "./paths/get-milking-visits.js";
+import { getAnimalsHandler } from "./paths/get-animals.js";
 
 // Read environment variables
 dotenv.config();
@@ -39,6 +40,7 @@ OpenAPIParser.dereference(URL_SCHEME_FILEPATH).then((urlScheme: OpenAPIV3_1.Docu
   api.init();
 
   // TODO: Register the rest of endpoints by operationId
+  api.register("get-animals", getAnimalsHandler);
   api.register("get-milking-visits", getMilkingVisitsHandler);
 
   // Define endpoints that fail
@@ -95,5 +97,5 @@ OpenAPIParser.dereference(URL_SCHEME_FILEPATH).then((urlScheme: OpenAPIV3_1.Docu
 
   app.use((req: Express.Request, res: Express.Response) => api.handleRequest(req, req, res));
 
-  app.listen(PORT, () => Logger.info(`API listening at http://localhost:${PORT}`));
+  app.listen(PORT, () => Logger.info(`API listening to port ${PORT}`));
 });

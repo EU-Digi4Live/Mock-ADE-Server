@@ -80,3 +80,13 @@ exampleDB:
                         ORDER BY milkingsession.systementrytimestamp
                         
                         LIMIT ':pageSize' OFFSET ':offset'"
+    "get-animals":  "SELECT officialregno as \"animal.identifier.id\"
+                    ,'EU code' as \"animal.identifier.scheme\"
+                    ,'Cattle' as \"animal.specie\"
+                    ,animalname as \"animal.name\"
+                    ,gender as \"animal.gender\"
+                    ,breed as \"animal.breed.id\"
+                    ,'icar.breed-3' as \"animal.breed.scheme\"
+                    ,birthdate as \"animal.birthdate\"
+                    ,modified as \"meta.modified\"
+                    FROM animal"

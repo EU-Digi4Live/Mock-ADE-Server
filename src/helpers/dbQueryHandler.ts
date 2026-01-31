@@ -6,7 +6,7 @@ import { Logger } from "./logger.js";
 import { connect } from "ts-postgres";
 import { setQueryOffsetAndLimit } from "./paginator.js";
 
-import type { DBQueryResult, DBQueryKey } from "../types/milkDBrecord.js";
+import type { DBQueryResult, DBQueryKey } from "../types/dbRecords.js";
 
 dotenv.config();
 const { SQL_QUERIES_FILEPATH, SQL_CONFIG_FILEPATH, LOCATIONS_FILEPATH } = process.env;
@@ -73,10 +73,10 @@ export async function getDBdetails(locationScheme: string, locationId: string) {
  * @param {string} pageSize Pagination parameter. Optional.
  * @returns {DBQueryResult<"get-milking-visits">[]}
  */
-export async function queryDatabase(
+export async function queryDatabase<T extends DBQueryKey>(
   locationScheme: string,
   locationId: string,
-  operationId: DBQueryKey,
+  operationId: T,
   metaModifiedFrom?: string,
   metaModifiedTo?: string,
   currentPage?: string,
@@ -91,7 +91,7 @@ export async function queryDatabase(
     const dbClient = sqlQueries[dbDetails.dbType].dbClient;
     const query = await getQuery(dbDetails.dbType, operationId, {metaModifiedFrom, metaModifiedTo, currentPage, pageSize});
   
-    let records: DBQueryResult<"get-milking-visits">[] = [];
+    let records: DBQueryResult<T>[] = [];
     try {
       Logger.debug("Connecting database:", dbDetails);
       Logger.debug("to send query:", query);
@@ -104,11 +104,11 @@ export async function queryDatabase(
           row.forEach((value, i) => {
             record = Object.assign({ [`${labelsAndValues.names[i]}`]: value }, record);
           });
-          records.push(record as DBQueryResult<"get-milking-visits">);
+          records.push(record as DBQueryResult<T>);
         });
       } else if (dbClient == "mssql") {
         await mssql.connect(sqlConfig);
-        const dbResult = await mssql.query<DBQueryResult<"get-milking-visits">>(query);
+        const dbResult = await mssql.query<DBQueryResult<T>>(query);
         records = dbResult.recordset;
   
       // // TODO: Add new database clients here
@@ -129,35 +129,43 @@ export async function queryDatabase(
 }
 
 // Returns database query statement.
-async function getQuery(dbType: dbDetailsType["dbType"], operationId: DBQueryKey, queryParams: {
-  metaModifiedFrom: string,
-  metaModifiedTo: string,
-  currentPage: string,
-  pageSize: string
-} = {
-  metaModifiedFrom: undefined,
-  metaModifiedTo: undefined,
-  currentPage: undefined,
-  pageSize: undefined
-}) {
-  let query: string  = sqlQueries[dbType][operationId];
-  query = await setDateTimeRange(query, queryParams.metaModifiedFrom, queryParams.metaModifiedTo);
-  query = await setQueryOffsetAndLimit(query, queryParams.currentPage, queryParams.pageSize);
-  return query;  
+async function getQuery<T extends DBQueryKey>(
+  dbType: dbDetailsType["dbType"],
+  operationId: T,
+  queryParams: {
+    metaModifiedFrom: string,
+    metaModifiedTo: string,
+    currentPage: string,
+    pageSize: string
+  } = {
+    metaModifiedFrom: undefined,
+    metaModifiedTo: undefined,
+    currentPage: undefined,
+    pageSize: undefined
+  }) {
+    let query: string  = sqlQueries[dbType][operationId];
+    query = await setDateTimeRange(query, queryParams.metaModifiedFrom, queryParams.metaModifiedTo);
+    query = await setQueryOffsetAndLimit(query, queryParams.currentPage, queryParams.pageSize);
+    return query;  
 }
 
 // Deletes unused WHERE statements from the database query statement, and returns it with keywords ':metaModifiedFromDateTime' and ':metaModifiedToDateTime' replaced with parameter values.
+// For example, in the get-milking-visits SQL query there are three different WHERE statements related to datetime range.
+// At least two of them needs to be removed, depending on which filtering parameters the user provides.
 async function setDateTimeRange(
   query: string,
   metaModifiedFrom?: string,
   metaModifiedTo?: string
   ): Promise<string> {
+    // Return if there are no WHERE statements in the query
+    const whereIndices = [...query.matchAll(RegExp("WHERE", "g"))].map(occurrence => occurrence.index);
+    if (whereIndices.length == 0) {
+      return query;
+    }
+
     const metaModifiedFromDateTime = getISOdatetime(metaModifiedFrom);
     const metaModifiedToDateTime = getISOdatetime(metaModifiedTo);
 
-    // In the SQL query there are three different WHERE statements related to datetime range.
-    // At least two of them needs to be removed, depending on which filtering parameters the user provides.
-    const whereIndices = [...query.matchAll(RegExp("WHERE", "g"))].map(occurrence => occurrence.index);
     const orderIndex = query.match(RegExp("ORDER")).index;
     const whereStatements = whereIndices.map((substringIndex, i) => query.substring(substringIndex, whereIndices.at(i+1) || orderIndex));
     const whereBetween = whereStatements.find(whereStatement => whereStatement.includes("BETWEEN"));
